@@ -11,8 +11,8 @@ class JsonapiControllerTest extends AimeosTestAbstract
 
 		$json = json_decode( $response->getContent(), true );
 
+		$this->assertResponseOk();
 		$this->assertNotNull( $json );
-		$this->assertEquals( 200, $response->getStatusCode() );
 		$this->assertArrayHasKey( 'resources', $json['meta'] );
 		$this->assertGreaterThan( 1, count( $json['meta']['resources'] ) );
 	}
@@ -23,15 +23,15 @@ class JsonapiControllerTest extends AimeosTestAbstract
 		View::addLocation( dirname( __DIR__ ) . '/fixtures/views' );
 
 		$params = ['site' => 'unittest', 'resource' => 'product'];
-		$getParams = ['filter' => ['f_search' => 'Cafe Noire Cap']];
+		$getParams = ['filter' => ['f_search' => 'Cafe Noire Cap'], 'sort' => 'product.code'];
 		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JsonapiController@getAction', $params, $getParams );
 
 		$json = json_decode( $response->getContent(), true );
 
 		$this->assertResponseOk();
 		$this->assertNotNull( $json );
-		$this->assertEquals( 2, $json['meta']['total'] );
-		$this->assertEquals( 2, count( $json['data'] ) );
+		$this->assertEquals( 3, $json['meta']['total'] );
+		$this->assertEquals( 3, count( $json['data'] ) );
 		$this->assertArrayHasKey( 'id', $json['data'][0] );
 		$this->assertEquals( 'CNC', $json['data'][0]['attributes']['product.code'] );
 
@@ -57,9 +57,10 @@ class JsonapiControllerTest extends AimeosTestAbstract
 
 		// get CNC product
 		$params = ['site' => 'unittest', 'resource' => 'product'];
-		$getParams = ['filter' => ['f_search' => 'Cafe Noire Cap', 'f_listtype' => 'unittype19']];
+		$getParams = ['filter' => ['f_search' => 'Cafe Noire Cap', 'f_listtype' => 'unittype19'], 'sort' => 'product.code'];
 		$response = $this->action( 'GET', '\Aimeos\Shop\Controller\JsonapiController@getAction', $params, $getParams );
 
+		$this->assertResponseOk();
 		$json = json_decode( $response->getContent(), true );
 		$this->assertEquals( 'CNC', $json['data'][0]['attributes']['product.code'] );
 
@@ -68,21 +69,24 @@ class JsonapiControllerTest extends AimeosTestAbstract
 		$content = json_encode( ['data' => ['attributes' => ['product.id' => $json['data'][0]['id']]]] );
 		$response = $this->action( 'POST', '\Aimeos\Shop\Controller\JsonapiController@postAction', $params, [], [], [], [], $content );
 
+		$this->assertEquals( 201, $response->getStatusCode() );
 		$json = json_decode( $response->getContent(), true );
-		$this->assertEquals( 'CNC', $json['included'][0]['attributes']['order.base.product.prodcode'] );
+		$this->assertEquals( 'CNC', $json['included'][0]['attributes']['order.product.prodcode'] );
 
 		// change product quantity in basket
 		$params = ['site' => 'unittest', 'resource' => 'basket', 'id' => 'default', 'related' => 'product', 'relatedid' => 0];
 		$content = json_encode( ['data' => ['attributes' => ['quantity' => 2]]] );
 		$response = $this->action( 'PATCH', '\Aimeos\Shop\Controller\JsonapiController@patchAction', $params, [], [], [], [], $content );
 
+		$this->assertResponseOk();
 		$json = json_decode( $response->getContent(), true );
-		$this->assertEquals( 2, $json['included'][0]['attributes']['order.base.product.quantity'] );
+		$this->assertEquals( 2, $json['included'][0]['attributes']['order.product.quantity'] );
 
 		// delete product from basket
 		$params = ['site' => 'unittest', 'resource' => 'basket', 'id' => 'default', 'related' => 'product', 'relatedid' => 0];
 		$response = $this->action( 'DELETE', '\Aimeos\Shop\Controller\JsonapiController@deleteAction', $params );
 
+		$this->assertResponseOk();
 		$json = json_decode( $response->getContent(), true );
 		$this->assertEquals( 0, count( $json['included'] ) );
 	}
@@ -95,6 +99,7 @@ class JsonapiControllerTest extends AimeosTestAbstract
 		$params = ['site' => 'unittest', 'resource' => 'basket'];
 		$response = $this->action( 'PUT', '\Aimeos\Shop\Controller\JsonapiController@putAction', $params );
 
+		$this->assertEquals( 403, $response->getStatusCode() );
 		$json = json_decode( $response->getContent(), true );
 		$this->assertArrayHasKey( 'errors', $json );
 	}

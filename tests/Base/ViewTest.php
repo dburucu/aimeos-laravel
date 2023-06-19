@@ -15,12 +15,12 @@ class ViewTest extends AimeosTestAbstract
 			->disableOriginalConstructor()
 			->getMock();
 
-		$context = new \Aimeos\MShop\Context\Item\Standard();
-		$context->setConfig( new \Aimeos\MW\Config\PHPArray() );
-		$context->setSession( new \Aimeos\MW\Session\None() );
+		$context = new \Aimeos\MShop\Context();
+		$context->setConfig( new \Aimeos\Base\Config\PHPArray() );
+		$context->setSession( new \Aimeos\Base\Session\None() );
 
 		$object = new \Aimeos\Shop\Base\View( $config, $i18n, $support );
 
-		$this->assertInstanceOf( '\Aimeos\MW\View\Iface', $object->create( $context, array() ) );
+		$this->assertInstanceOf( '\Aimeos\Base\View\Iface', $object->create( $context, array() ) );
 	}
 }

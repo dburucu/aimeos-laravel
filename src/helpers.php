@@ -2,9 +2,34 @@
 
 /**
  * @license MIT, http://opensource.org/licenses/MIT
- * @copyright Aimeos (aimeos.org), 2017
- * @package laravel
+ * @copyright Aimeos (aimeos.org), 2017-2023
  */
+
+
+if( !function_exists( 'airoute' ) )
+{
+	/**
+	 * Generate the URL to a named route.
+	 *
+	 * @param  array|string  $name
+	 * @param  mixed  $parameters
+	 * @param  bool  $absolute
+	 * @return string
+	 */
+	function airoute( $name, $parameters = [], $absolute = true )
+	{
+		if( $current = Route::current() )
+		{
+			$site = config( 'app.shop_multishop' ) ? config( 'shop.mshop.locale.site', 'default' ) : null;
+
+			$parameters['site'] ??= $current->parameter( 'site', Request::get( 'site', $site ) );
+			$parameters['locale'] ??= $current->parameter( 'locale', Request::get( 'locale' ) );
+			$parameters['currency'] ??= $current->parameter( 'currency', Request::get( 'currency' ) );
+		}
+
+		return app( 'url' )->route( $name, array_filter( $parameters ), $absolute );
+	}
+}
 
 
 if( !function_exists( 'aiconfig' ) )
@@ -18,7 +43,7 @@ if( !function_exists( 'aiconfig' ) )
 	 */
 	function aiconfig( $key, $default = null )
 	{
-		return app( '\Aimeos\Shop\Base\Config' )->get()->get( $key, $default );
+		return app( 'aimeos.config' )->get()->get( $key, $default );
 	}
 }
 
@@ -36,7 +61,7 @@ if( !function_exists( 'aitrans' ) )
 	 */
 	function aitrans( $singular, array $params = array(), $domain = 'client', $locale = null )
 	{
-		$i18n = app( '\Aimeos\Shop\Base\Context' )->get()->getI18n( $locale );
+		$i18n = app( 'aimeos.context' )->get()->i18n( $locale );
 
 		return vsprintf( $i18n->dt( $domain, $singular ), $params );
 	}
@@ -58,7 +83,7 @@ if( !function_exists( 'aitransplural' ) )
 	 */
 	function aitransplural( $singular, $plural, $number, array $params = array(), $domain = 'client', $locale = null )
 	{
-		$i18n = app( '\Aimeos\Shop\Base\Context' )->get()->getI18n( $locale );
+		$i18n = app( 'aimeos.context' )->get()->i18n( $locale );
 
 		return vsprintf( $i18n->dn( $domain, $singular, $plural, $number ), $params );
 	}
