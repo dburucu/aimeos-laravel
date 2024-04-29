@@ -36,7 +36,7 @@ class JqadmController extends AdminController
 		$contents = '';
 		$files = array();
 		$aimeos = app( 'aimeos' )->get();
-		$type = Route::input( 'type', Request::get( 'type', 'js' ) );
+		$name = Route::input( 'name', Request::get( 'name' ) );
 
 		foreach( $aimeos->getCustomPaths( 'admin/jqadm' ) as $base => $paths )
 		{
@@ -44,7 +44,7 @@ class JqadmController extends AdminController
 			{
 				$jsbAbsPath = $base . '/' . $path;
 				$jsb2 = new \Aimeos\MW\Jsb2\Standard( $jsbAbsPath, dirname( $jsbAbsPath ) );
-				$files = array_merge( $files, $jsb2->getFiles( $type ) );
+				$files = array_merge( $files, $jsb2->getFiles( $name ) );
 			}
 		}
 
@@ -57,9 +57,9 @@ class JqadmController extends AdminController
 
 		$response = response( $contents );
 
-		if( $type === 'js' ) {
+		if( str_ends_with( $name, 'js' ) ) {
 			$response->header( 'Content-Type', 'application/javascript' );
-		} elseif( $type === 'css' ) {
+		} elseif( str_ends_with( $name, 'css' ) ) {
 			$response->header( 'Content-Type', 'text/css' );
 		}
 
@@ -84,7 +84,7 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
 	}
 
 
@@ -105,7 +105,7 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
 	}
 
 
@@ -126,7 +126,7 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
 	}
 
 
@@ -147,7 +147,7 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
 	}
 
 
@@ -168,7 +168,7 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
 	}
 
 
@@ -189,7 +189,28 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
+	}
+
+
+	/**
+	 * Imports the data for a resource object
+	 *
+	 * @return string Generated output
+	 */
+	public function importAction()
+	{
+		if( config( 'shop.authorize', true ) ) {
+			$this->authorize( 'admin', [JqadmController::class, config( 'shop.roles', ['admin', 'editor'] )] );
+		}
+
+		$cntl = $this->createAdmin();
+
+		if( ( $html = $cntl->import() ) == '' ) {
+			return $cntl->response();
+		}
+
+		return $this->getHtml( (string) $html );
 	}
 
 
@@ -210,7 +231,7 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
 	}
 
 
@@ -231,7 +252,7 @@ class JqadmController extends AdminController
 			return $cntl->response();
 		}
 
-		return $this->getHtml( $html );
+		return $this->getHtml( (string) $html );
 	}
 
 

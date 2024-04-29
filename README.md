@@ -131,10 +131,10 @@ headless distribution is the right choice:
 
 ## Supported versions
 
-Currently, the Aimeos Laravel packages **2022.10 and later** are fully supported:
+Currently, the Aimeos Laravel packages **2023.10 and later** are fully supported:
 
-- Stable release: 2023.07 (Laravel 9.x and 10.x)
-- old LTS release: 2022.10 (Laravel 9.x and 10.x)
+- Stable release: 2024.04+ (Laravel 10.x and 11.x)
+- LTS release: 2023.10 (Laravel 9.x, 10.x and 11.x)
 
 If you want to upgrade between major versions, please have a look into the
 [upgrade guide](https://aimeos.org/docs/latest/laravel/setup/#upgrade)!
@@ -143,7 +143,7 @@ If you want to upgrade between major versions, please have a look into the
 
 The Aimeos shop distribution requires:
 - Linux/Unix, WAMP/XAMP or MacOS environment
-- PHP >= 8.0.11
+- PHP >= 8.1
 - MySQL >= 5.7.8, MariaDB >= 10.2.2, PostgreSQL 9.6+, SQL Server 2019+
 - Web server (Apache, Nginx or integrated PHP web server for testing)
 
@@ -193,6 +193,19 @@ and their specific configuration. Supported are:
 * PostgreSQL (fully)
 * SQL Server (fully)
 
+Make sure, you use one of the supported database servers in your `.env` file, e.g.:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=aimeos
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+**Caution:** The SQLite database configured by default is **NOT supported!**
+
 ## Installation
 
 The Aimeos Laravel online shop package is a composer based library. It can be
@@ -201,7 +214,6 @@ directory of your existing Laravel application:
 
 ```
 wget https://getcomposer.org/download/latest-stable/composer.phar -O composer
-php composer require aimeos/aimeos-laravel:~2023.07
 ```
 
 Then, add these lines to the composer.json of the **Laravel skeleton application**:
@@ -210,13 +222,13 @@ Then, add these lines to the composer.json of the **Laravel skeleton application
     "prefer-stable": true,
     "minimum-stability": "dev",
     "require": {
-        "aimeos/aimeos-laravel": "~2023.07",
+        "aimeos/aimeos-laravel": "~2024.04",
         ...
     },
     "scripts": {
         "post-update-cmd": [
-            "@php artisan migrate",
-            "@php artisan vendor:publish --tag=public --force",
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "@php artisan vendor:publish --tag=public --ansi",
             "\\Aimeos\\Shop\\Composer::join"
         ],
         ...
@@ -225,13 +237,13 @@ Then, add these lines to the composer.json of the **Laravel skeleton application
 
 Afterwards, install the Aimeos shop package using
 
-`composer update`
+`php composer update -W`
 
 In the last step you must now execute these artisan commands to get a working
 or updated Aimeos installation:
 
 ```bash
-php artisan vendor:publish --provider="Aimeos\Shop\ShopServiceProvider"
+php artisan vendor:publish --tag=config --tag=public
 php artisan migrate
 php artisan aimeos:setup --option=setup/default/demo:1
 ```
@@ -244,15 +256,16 @@ installed, leave out the `--option=setup/default/demo:1` option.
 You have to set up one of Laravel's authentication starter kits. Laravel Breeze
 is the easiest one but you can also use Jetstream.
 
-### Laravel 9 & 10
-
 ```bash
 composer require laravel/breeze
 php artisan breeze:install
-npm install && npm run build
+npm install && npm run build # if not executed automatically by the previous command
 ```
 
-Laravel Breeze adds a route for `/profile` to `./routes/web.php` which may overwrite the
+Laravel Breeze will ask you a few questions, the most important one is the type of stack you
+want to use. Select "Blade" (it's the easiest way) and use the default values for the others.
+
+It also adds a route for `/profile` to `./routes/web.php` which may overwrite the
 `aimeos_shop_account` route. To avoid an exception about a missing `aimeos_shop_account`
 route, change the URL for these lines from `./routes/web.php` file from `/profile` to
 `/profile/me`:
@@ -266,14 +279,15 @@ Route::middleware('auth')->group(function () {
 ```
 
 For more information, please follow the Laravel documentation:
+* [Laravel 11.x](https://laravel.com/docs/11.x/authentication)
 * [Laravel 10.x](https://laravel.com/docs/10.x/authentication)
 * [Laravel 9.x](https://laravel.com/docs/9.x/authentication)
 
 ### Configure authentication
 
 As a last step, you need to extend the `boot()` method of your
-`App\Providers\AuthServiceProvider` class and add the lines to define how
-authorization for "admin" is checked in `app/Providers/AuthServiceProvider.php`:
+`App\Providers\AppServiceProvider` class and add the lines to define how
+authorization for "admin" is checked in `app/Providers/AppServiceProvider.php`:
 
 ```php
     public function boot()
@@ -343,7 +357,8 @@ php artisan serve
 
 Point your browser to the list page of the shop using:
 
-http://127.0.0.1:8000/shop
+* 2024.x+: http://127.0.0.1:8000/shop/search
+* 2023.x: http://127.0.0.1:8000/shop
 
 **Note:** Integrating the Aimeos package adds some routes like `/shop` or `/admin` to your
 Laravel installation but the **home page stays untouched!** If you want to add Aimeos to
@@ -360,7 +375,7 @@ For multi-vendor setups, read the article about [multiple shops](https://aimeos.
 This will display the Aimeos catalog home component on the home page you you get a
 nice looking shop home page which will look like this:
 
-[![Aimeos frontend](https://aimeos.org/fileadmin/aimeos.org/images/aimeos-frontend.jpg?2021.07)](http://127.0.0.1:8000/shop)
+[![Aimeos frontend](https://aimeos.org/fileadmin/aimeos.org/images/aimeos-frontend.jpg?2021.07)](http://127.0.0.1:8000/)
 
 ### Backend
 

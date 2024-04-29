@@ -39,28 +39,15 @@ class ShopServiceProvider extends ServiceProvider {
 		$this->publishes( [dirname( __DIR__ ) . '/config/shop.php' => config_path( 'shop.php' )], 'config' );
 		$this->publishes( [dirname( __DIR__ ) . '/public' => public_path( 'vendor/shop' )], 'public' );
 
-		if( file_exists( $basepath = base_path( 'ext' ) ) )
-		{
-			foreach( new \DirectoryIterator( $basepath ) as $entry )
-			{
-				if( $entry->isDir() && !$entry->isDot() && file_exists( $entry->getPathName() . '/themes/client/html' ) ) {
-					$this->publishes( [$entry->getPathName() . 'themes/client/html/' => public_path( 'vendor/shop/themes' )], 'public' );
-				}
-			}
-		}
-
 		$class = '\Composer\InstalledVersions';
 
 		if( class_exists( $class ) && method_exists( $class, 'getInstalledPackagesByType' ) )
 		{
-			$extdir = base_path( 'ext' );
-			$packages = \Composer\InstalledVersions::getInstalledPackagesByType( 'aimeos-extension' );
-
-			foreach( $packages as $package )
+			foreach( \Composer\InstalledVersions::getInstalledPackagesByType( 'aimeos-extension' ) as $package )
 			{
 				$path = realpath( \Composer\InstalledVersions::getInstallPath( $package ) );
 
-				if( strncmp( $path, $extdir, strlen( $extdir ) ) && file_exists( $path . '/themes/client/html' ) ) {
+				if( file_exists( $path . '/themes/client/html' ) ) {
 					$this->publishes( [$path . '/themes/client/html' => public_path( 'vendor/shop/themes' )], 'public' );
 				}
 			}
@@ -107,6 +94,55 @@ class ShopServiceProvider extends ServiceProvider {
 
 		$this->app->singleton( 'aimeos.shop', function( $app ) {
 			return new \Aimeos\Shop\Base\Shop( $app['aimeos'], $app['aimeos.context'], $app['aimeos.view'] );
+		});
+
+
+		$this->app->bind( 'aimeos.frontend.attribute', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'attribute' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.basket', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'basket' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.catalog', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'catalog' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.cms', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'cms' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.customer', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'customer' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.locale', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'locale' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.order', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'order' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.product', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'product' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.service', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'service' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.stock', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'stock' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.subscription', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'subscription' );
+		});
+
+		$this->app->bind( 'aimeos.frontend.supplier', function( $app ) {
+			return \Aimeos\Controller\Frontend::create( $app['aimeos.context'], 'supplier' );
 		});
 
 

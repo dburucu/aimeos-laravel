@@ -87,23 +87,6 @@ class Support
 
 
 	/**
-	 * Returns the available group codes
-	 *
-	 * @param \Aimeos\MShop\ContextIface $context Context item
-	 * @return string[] List of group codes
-	 */
-	public function getGroups( \Aimeos\MShop\ContextIface $context ) : array
-	{
-		$manager = \Aimeos\MShop::create( $context, 'customer/group' );
-
-		$search = $manager->filter();
-		$search->setConditions( $search->compare( '==', 'customer.group.id', $context->groups() ) );
-
-		return $manager->search( $search )->getCode()->toArray();
-	}
-
-
-	/**
 	 * Checks if one of the groups is associated to the given user ID
 	 *
 	 * @param \Aimeos\MShop\ContextIface $context Context item
@@ -113,10 +96,10 @@ class Support
 	 */
 	protected function checkGroups( \Aimeos\MShop\ContextIface $context, string $userid, $groupcodes ) : bool
 	{
-		$manager = \Aimeos\MShop::create( $context, 'customer/group' );
+		$manager = \Aimeos\MShop::create( $context, 'group' );
 
 		$search = $manager->filter();
-		$search->setConditions( $search->compare( '==', 'customer.group.code', (array) $groupcodes ) );
+		$search->setConditions( $search->compare( '==', 'group.code', (array) $groupcodes ) );
 		$groupIds = $manager->search( $search )->keys()->toArray();
 
 		$manager = \Aimeos\MShop::create( $context, 'customer/lists' );
@@ -125,7 +108,7 @@ class Support
 		$expr = array(
 			$search->compare( '==', 'customer.lists.parentid', $userid ),
 			$search->compare( '==', 'customer.lists.refid', $groupIds ),
-			$search->compare( '==', 'customer.lists.domain', 'customer/group' ),
+			$search->compare( '==', 'customer.lists.domain', 'group' ),
 		);
 		$search->setConditions( $search->combine( '&&', $expr ) );
 

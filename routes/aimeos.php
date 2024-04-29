@@ -17,7 +17,7 @@ if( ( $conf = config( 'shop.routes.jqadm', ['prefix' => 'admin/{site}/jqadm', 'm
 
 	Route::group( $conf, function() {
 
-		Route::match( array( 'GET' ), 'file/{type}', array(
+		Route::match( array( 'GET' ), 'file/{name}/{locale}', array(
 			'as' => 'aimeos_shop_jqadm_file',
 			'uses' => 'Aimeos\Shop\Controller\JqadmController@fileAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
@@ -27,12 +27,12 @@ if( ( $conf = config( 'shop.routes.jqadm', ['prefix' => 'admin/{site}/jqadm', 'm
 			'uses' => 'Aimeos\Shop\Controller\JqadmController@batchAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+', 'resource' => '[a-z\/]+'] );
 
-		Route::match( array( 'GET' ), 'copy/{resource}/{id}', array(
+		Route::match( array( 'GET', 'POST' ), 'copy/{resource}/{id}', array(
 			'as' => 'aimeos_shop_jqadm_copy',
 			'uses' => 'Aimeos\Shop\Controller\JqadmController@copyAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+', 'resource' => '[a-z\/]+'] );
 
-		Route::match( array( 'GET' ), 'create/{resource}', array(
+		Route::match( array( 'GET', 'POST' ), 'create/{resource}', array(
 			'as' => 'aimeos_shop_jqadm_create',
 			'uses' => 'Aimeos\Shop\Controller\JqadmController@createAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+', 'resource' => '[a-z\/]+'] );
@@ -50,6 +50,11 @@ if( ( $conf = config( 'shop.routes.jqadm', ['prefix' => 'admin/{site}/jqadm', 'm
 		Route::match( array( 'GET' ), 'get/{resource}/{id}', array(
 			'as' => 'aimeos_shop_jqadm_get',
 			'uses' => 'Aimeos\Shop\Controller\JqadmController@getAction'
+		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+', 'resource' => '[a-z\/]+'] );
+
+		Route::match( array( 'POST' ), 'import/{resource}', array(
+			'as' => 'aimeos_shop_jqadm_import',
+			'uses' => 'Aimeos\Shop\Controller\JqadmController@importAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+', 'resource' => '[a-z\/]+'] );
 
 		Route::match( array( 'POST' ), 'save/{resource}', array(
@@ -183,7 +188,7 @@ if( ( $conf = config( 'shop.routes.account', ['prefix' => 'profile', 'middleware
 }
 
 
-if( ( $conf = config( 'shop.routes.supplier', ['prefix' => 'supplier', 'middleware' => ['web']] ) ) !== false ) {
+if( ( $conf = config( 'shop.routes.supplier', ['prefix' => 'brand', 'middleware' => ['web']] ) ) !== false ) {
 
 	Route::group( $conf, function() {
 
@@ -222,6 +227,32 @@ if( ( $conf = config( 'shop.routes.confirm', ['prefix' => 'shop', 'middleware' =
 }
 
 
+if( ( $conf = config( 'shop.routes.checkout', ['prefix' => 'shop', 'middleware' => ['web']] ) ) !== false ) {
+
+	Route::group( $conf, function() {
+
+		Route::match( array( 'GET', 'POST' ), 'checkout/{c_step?}', array(
+			'as' => 'aimeos_shop_checkout',
+			'uses' => 'Aimeos\Shop\Controller\CheckoutController@indexAction'
+		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
+
+	});
+}
+
+
+if( ( $conf = config( 'shop.routes.basket', ['prefix' => 'shop', 'middleware' => ['web']] ) ) !== false ) {
+
+	Route::group( $conf, function() {
+
+		Route::match( array( 'GET', 'POST' ), 'basket', array(
+			'as' => 'aimeos_shop_basket',
+			'uses' => 'Aimeos\Shop\Controller\BasketController@indexAction'
+		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
+
+	});
+}
+
+
 if( ( $conf = config( 'shop.routes.default', ['prefix' => 'shop', 'middleware' => ['web']] ) ) !== false ) {
 
 	Route::group( $conf, function() {
@@ -241,19 +272,14 @@ if( ( $conf = config( 'shop.routes.default', ['prefix' => 'shop', 'middleware' =
 			'uses' => 'Aimeos\Shop\Controller\CatalogController@stockAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
 
-		Route::match( array( 'GET', 'POST' ), 'basket', array(
-			'as' => 'aimeos_shop_basket',
-			'uses' => 'Aimeos\Shop\Controller\BasketController@indexAction'
-		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
-
-		Route::match( array( 'GET', 'POST' ), 'checkout/{c_step?}', array(
-			'as' => 'aimeos_shop_checkout',
-			'uses' => 'Aimeos\Shop\Controller\CheckoutController@indexAction'
-		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
-
 		Route::match( array( 'GET', 'POST' ), 'pin', array(
 			'as' => 'aimeos_shop_session_pinned',
 			'uses' => 'Aimeos\Shop\Controller\CatalogController@sessionAction'
+		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
+
+		Route::match( array( 'GET', 'POST' ), 'search', array(
+			'as' => 'aimeos_shop_list',
+			'uses' => 'Aimeos\Shop\Controller\CatalogController@listAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
 
 		Route::match( array( 'GET', 'POST' ), '{f_name}~{f_catid}/{l_page?}', array(
@@ -265,11 +291,6 @@ if( ( $conf = config( 'shop.routes.default', ['prefix' => 'shop', 'middleware' =
 			'as' => 'aimeos_shop_detail',
 			'uses' => 'Aimeos\Shop\Controller\CatalogController@detailAction'
 		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+', 'd_pos' => '[0-9]*'] );
-
-		Route::match( array( 'GET', 'POST' ), '', array(
-			'as' => 'aimeos_shop_list',
-			'uses' => 'Aimeos\Shop\Controller\CatalogController@listAction'
-		) )->where( ['locale' => '[a-z]{2}(\_[A-Z]{2})?', 'site' => '[A-Za-z0-9\.\-]+'] );
 
 	});
 }
